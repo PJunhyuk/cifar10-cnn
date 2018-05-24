@@ -1,4 +1,7 @@
 if __name__ == "__main__":
+    import time
+    time_start = time.time()
+
     #######################################################################################
     # 1. Loading and normalizing CIFAR10
     import torch
@@ -17,7 +20,6 @@ if __name__ == "__main__":
 
     #######################################################################################
     # 2. Define a Convolution Neural Network
-
     import torch.nn as nn
     import torch.nn.functional as F
 
@@ -51,8 +53,21 @@ if __name__ == "__main__":
 
     #######################################################################################
     ## 4. Train the network
-    for epoch in range(2):
+    epoch_max = 50
+
+    train_loss_list = []
+    test_loss_list = []
+    accuracy_list = []
+
+    for epoch in range(epoch_max):
         running_loss = 0.0
+        test_loss = 0.0
+
+        train_num = 0
+        test_num = 0
+
+        #### Checking train loss
+        time_start_loop = time.time()
         for i, data in enumerate(trainloader, 0):
             inputs, labels = data
             optimizer.zero_grad()
@@ -61,14 +76,45 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-            if i % 2000 == 1999:
-                print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
-                running_loss = 0.0
+            train_num = train_num + 1
+        train_loss_list.append(running_loss)
+        print('iteration: %d ==> loss: %.3f' % (epoch + 1, running_loss / train_num))
+        print('Required time(s): ' + str(time.time() - time_start_loop))
+
+        #### Checking test loss
+        time_start_loop = time.time()
+        for i, data in enumerate(testloader, 0):
+            inputs, labels = data
+            outputs = net(inputs)
+            loss=criterion(outputs, labels)
+            test_loss += loss.item()
+            test_num = test_num + 1
+        test_loss_list.append(test_loss)
+        print('iteration: %d ==> test_loss: %.3f' % (epoch + 1, test_loss / test_num))
+        print('Required time(s): ' + str(time.time() - time_start_loop))
+
+        ## Checking accuracy
+        time_start_test = time.time()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for data in testloader:
+                images, labels = data
+                outputs = net(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        accuracy = 100 * correct / total
+        accuracy_list.append(accuracy)
+        print('Accuracy of the network on the 10000 test images: %d %%' % accuracy)
+        print('Required time(s): ' + str(time.time() - time_start_test))
 
     print('Finished Training')
 
     #######################################################################################
     ## 5. Test the network on the test data
+    time_start_test = time.time()
+
     correct = 0
     total = 0
     with torch.no_grad():
@@ -80,3 +126,15 @@ if __name__ == "__main__":
             correct += (predicted == labels).sum().item()
 
     print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
+    print('Required time(s): ' + str(time.time() - time_start_test))
+    print('Total required time(s): ' + str(time.time() - time_start))
+
+    #######################################################################################
+    ## Draw a plot
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    plt.plot(test_loss_list)
+    plt.plot(train_loss_list)
+    plt.plot(accuracy_list)
