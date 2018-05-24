@@ -28,18 +28,20 @@ if __name__ == "__main__":
             super(Net, self).__init__()
             self.conv1 = nn.Conv2d(3, 64, 5)
             self.conv2 = nn.Conv2d(64, 128, 5)
-            self.conv3 = nn.Conv2d(128, 128, 3)
+            self.conv3 = nn.Conv2d(128, 256, 3)
+            self.conv4 = nn.Conv2d(256, 1024, 3)
             self.pool = nn.MaxPool2d(2, 2)
-            self.fc = nn.Linear(3 * 3 * 128, 10)
+            self.fc = nn.Linear(1 * 1 * 1024, 10)
 
         def forward(self, x):
             x = F.relu(self.conv1(x)) ## 32x32x3 -> 28x28x64
             x = self.pool(x) ## 28x28x64 -> 14x14x64
             x = F.relu(self.conv2(x)) ## 14x14x64 -> 10x10x128
             x = self.pool(x) ## 10x10x128 -> 5x5x128
-            x = F.relu(self.conv3(x)) ## 5x5x128 -> 3x3x128
-            x = x.view(-1, 3 * 3 * 128) ## 3x3x128 -> 1152
-            x = self.fc(x) ## 1152 -> 10
+            x = F.relu(self.conv3(x)) ## 5x5x128 -> 3x3x256
+            x = F.relu(self.conv4(x)) ## 3x3x256 -> 1x1x1024
+            x = x.view(-1, 1 * 1 * 1024) ## 1x1x1024 -> 1024
+            x = self.fc(x) ## 1024 -> 10
             return x
 
     net = Net()
