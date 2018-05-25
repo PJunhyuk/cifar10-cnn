@@ -33,16 +33,16 @@ if __name__ == "__main__":
             self.pool = nn.MaxPool2d(2, 2)
             self.fc = nn.Linear(1152, 10)
 
-#            self.conv = nn.Conv2d(3, 180, 5)
-#            self.pool = nn.MaxPool2d(2, 2)
-#            self.fc = nn.Linear(14*14*180, 10)
+            # self.conv = nn.Conv2d(3, 180, 5)
+            # self.pool = nn.MaxPool2d(2, 2)
+            # self.fc = nn.Linear(14*14*180, 10)
 
-            #self.conv1 = nn.Conv2d(3, 64, 5) # 32 -> 28 -> 14
-            #self.conv2 = nn.Conv2d(64, 64, 5) # 14 -> 10 -> 5
-            #self.conv3 = nn.Conv2d(64, 128, 3) # 5 -> 3
-            #self.conv4 = nn.Conv2d(128, 128, 3) # 3 -> 1
-            #self.pool = nn.MaxPool2d(2, 2)
-            #self.fc = nn.Linear(1*1*128, 10)
+            # self.conv1 = nn.Conv2d(3, 64, 5) # 32 -> 28 -> 14
+            # self.conv2 = nn.Conv2d(64, 64, 5) # 14 -> 10 -> 5
+            # self.conv3 = nn.Conv2d(64, 128, 3) # 5 -> 3
+            # self.conv4 = nn.Conv2d(128, 128, 3) # 3 -> 1
+            # self.pool = nn.MaxPool2d(2, 2)
+            # self.fc = nn.Linear(1*1*128, 10)
 
         def forward(self, x):
             x = F.relu(self.conv1(x)) ## 32x32x3 -> 28x28x64
@@ -58,14 +58,14 @@ if __name__ == "__main__":
             # x = x.view(-1, 14*14*180)
             # x = self.fc(x)
 
-            #x = F.relu(self.conv1(x))
-            #x = self.pool(x)
-            #x = F.relu(self.conv2(x))
-            #x = self.pool(x)
-            #x = F.relu(self.conv3(x))
-            #x = F.relu(self.conv4(x))
-            #x = x.view(-1, 1*1*128)
-            #x = self.fc(x)
+            # x = F.relu(self.conv1(x))
+            # x = self.pool(x)
+            # x = F.relu(self.conv2(x))
+            # x = self.pool(x)
+            # x = F.relu(self.conv3(x))
+            # x = F.relu(self.conv4(x))
+            # x = x.view(-1, 1*1*128)
+            # x = self.fc(x)
 
             return x
 
@@ -110,16 +110,16 @@ if __name__ == "__main__":
         print('Required time(s): ' + str(time.time() - time_start_loop))
 
         #### Checking test loss
-#        time_start_loop = time.time()
-#        for i, data in enumerate(testloader, 0):
-#            inputs, labels = data
-#            outputs = net(inputs)
-#            loss=criterion(outputs, labels)
-#            test_loss += loss.item()
-#            test_num = test_num + 1
-#        test_loss_list.append(test_loss)
-#        print('iteration: %d ==> test_loss: %.3f' % (epoch + 1, test_loss / test_num))
-#        print('Required time(s): ' + str(time.time() - time_start_loop))
+       time_start_loop = time.time()
+       for i, data in enumerate(testloader, 0):
+           inputs, labels = data
+           outputs = net(inputs)
+           loss=criterion(outputs, labels)
+           test_loss += loss.item()
+           test_num = test_num + 1
+       test_loss_list.append(test_loss)
+       print('iteration: %d ==> test_loss: %.3f' % (epoch + 1, test_loss / test_num))
+       print('Required time(s): ' + str(time.time() - time_start_loop))
 
         ## Checking accuracy
         time_start_test = time.time()
@@ -156,13 +156,3 @@ if __name__ == "__main__":
     print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
     print('Required time(s): ' + str(time.time() - time_start_test))
     print('Total required time(s): ' + str(time.time() - time_start))
-
-    #######################################################################################
-    ## Draw a plot
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    plt.plot(test_loss_list)
-    plt.plot(train_loss_list)
-    plt.plot(accuracy_list)
