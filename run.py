@@ -13,11 +13,9 @@ if __name__ == "__main__":
 
     trainset = torchvision.datasets.CIFAR10(root='/tmp/data/cifar10-py', train=True, download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True, num_workers=2)
-    print(trainloader)
 
     testset = torchvision.datasets.CIFAR10(root='/tmp/data/cifar10-py', train=False, download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
-    print(testloader)
 
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truch')
 
@@ -64,7 +62,7 @@ if __name__ == "__main__":
 
     #######################################################################################
     ## 4. Train the network
-    epoch_max = 50
+    epoch_max = 1000
 
     train_loss_list = []
     test_loss_list = []
@@ -84,7 +82,7 @@ if __name__ == "__main__":
                 inputs, labels = data
                 optimizer.zero_grad()
                 outputs = net(inputs)
-                loss=criterion(outputs, labels)
+                loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
@@ -96,11 +94,12 @@ if __name__ == "__main__":
         #### Checking test loss
         time_start_loop = time.time()
         for i, data in enumerate(testloader, 0):
-            inputs, labels = data
-            outputs = net(inputs)
-            loss=criterion(outputs, labels)
-            test_loss += loss.item()
-            test_num = test_num + 1
+            if i % 50 == 0:
+                inputs, labels = data
+                outputs = net(inputs)
+                loss = criterion(outputs, labels)
+                test_loss += loss.item()
+                test_num = test_num + 1
         test_loss_list.append(test_loss)
         print('iteration: %d ==> test_loss: %.3f' % (epoch + 1, test_loss / test_num))
         print('Required time(s): ' + str(time.time() - time_start_loop))
@@ -110,16 +109,22 @@ if __name__ == "__main__":
         correct = 0
         total = 0
         with torch.no_grad():
-            for data in testloader:
-                images, labels = data
-                outputs = net(images)
-                _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+            for i, data in enumerate(testloader, 0):
+                if i % 50 == 0:
+                    images, labels = data
+                    outputs = net(images)
+                    _, predicted = torch.max(outputs.data, 1)
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
         accuracy = 100 * correct / total
         accuracy_list.append(accuracy)
         print('Accuracy of the network on the 10000 test images: %d %%' % accuracy)
         print('Required time(s): ' + str(time.time() - time_start_test))
+
+        time_start_save = time.time()
+        filename = './checkpoint/checkpoint_teacher_' + str(epoch) + '.pth'
+        torch.save(net.state_dict(), filename)
+        print('save complete!')
 
     print('Finished Training')
 
